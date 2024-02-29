@@ -16,7 +16,9 @@ iterator.
 
 You'll edit this file in Tasks 3a and 3c.
 """
+import itertools
 import operator
+from typing import Generator
 import helpers
 import datetime
 from models import CloseApproach, NearEarthObject
@@ -186,7 +188,7 @@ def create_filters(
     """Create a collection of filters from user-specified criteria.
 
     Each of these arguments is provided by the main module with a value from the
-    user's options at the command line. Each one corresponds to a different type
+    user's options at the command,line. Each one corresponds to a different type
     of filter. For example, the `--date` option corresponds to the `date`
     argument, and represents a filter that selects close approaches that occurred
     on exactly that given date. Similarly, the `--min-distance` option
@@ -269,7 +271,7 @@ def create_filters(
     return filters
 
 
-def limit(iterator, n=None):
+def limit(iterator: Generator, n=None):
     """Produce a limited stream of values from an iterator.
 
     If `n` is 0 or None, don't limit the iterator at all.
@@ -278,5 +280,7 @@ def limit(iterator, n=None):
     :param n: The maximum number of values to produce.
     :yield: The first (at most) `n` values from the iterator.
     """
-    # TODO: Produce at most `n` values from the given iterator.
-    return iterator
+    if n is None or n == 0:
+        return iterator
+
+    return itertools.islice(iterator, n)

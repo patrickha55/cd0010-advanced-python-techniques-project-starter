@@ -83,7 +83,7 @@ class CloseApproach:
     `NEODatabase` constructor.
     """
 
-    def __init__(self, time, distance: str, velocity: str, neo: NearEarthObject = None, designation: str = None) -> None:
+    def __init__(self, time: str, distance: str, velocity: str, neo: NearEarthObject = None, designation: str = None) -> None:
         """Create a new `CloseApproach`.
 
         Args:

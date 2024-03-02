@@ -12,9 +12,12 @@ You'll edit this file in Part 4.
 """
 import csv
 import json
+import pathlib
+
+from models import CloseApproach, NearEarthObject
 
 
-def write_to_csv(results, filename):
+def write_to_csv(results: list[CloseApproach], filename: pathlib.Path) -> None:
     """Write an iterable of `CloseApproach` objects to a CSV file.
 
     The precise output specification is in `README.md`. Roughly, each output row
@@ -28,10 +31,15 @@ def write_to_csv(results, filename):
         'datetime_utc', 'distance_au', 'velocity_km_s',
         'designation', 'name', 'diameter_km', 'potentially_hazardous'
     )
-    # TODO: Write the results to a CSV file, following the specification in the instructions.
+    with open(filename, 'w', encoding='utf-8', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for result in results:
+            writer.writerow(result.serialize() | result.neo.serialize())
 
 
-def write_to_json(results, filename):
+def write_to_json(results: list[CloseApproach], filename: pathlib.Path) -> None:
     """Write an iterable of `CloseApproach` objects to a JSON file.
 
     The precise output specification is in `README.md`. Roughly, the output is a
@@ -42,4 +50,14 @@ def write_to_json(results, filename):
     :param results: An iterable of `CloseApproach` objects.
     :param filename: A Path-like object pointing to where the data should be saved.
     """
-    # TODO: Write the results to a JSON file, following the specification in the instructions.
+    with open(filename, 'w', encoding='utf-8') as f:
+        dict_list: list[dict[str, str]] = [result.serialize() | nest_neo_object(result.neo)
+                                           for result in results]
+
+        json.dump(dict_list, f)
+
+
+def nest_neo_object(neo: NearEarthObject) -> dict[str, dict[str, str]]:
+    return {
+        'neo': neo.serialize()
+    }

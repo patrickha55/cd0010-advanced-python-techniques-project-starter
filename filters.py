@@ -218,18 +218,18 @@ def create_filters(
 
     if date:
         filters.add(
-            ApproachDateFilter(operator.eq, helpers.datetime_to_str(date))
+            ApproachDateFilter(operator.eq, date)
         )
 
     if start_date:
         filters.add(
             ApproachDateFilter(
-                operator.ge, helpers.datetime_to_str(start_date))
+                operator.ge, start_date)
         )
 
     if end_date:
         filters.add(
-            ApproachDateFilter(operator.le, helpers.datetime_to_str(end_date))
+            ApproachDateFilter(operator.le, end_date)
         )
 
     if distance_min:
@@ -262,11 +262,12 @@ def create_filters(
             NEODiameterFilter(operator.le, float(diameter_max))
         )
 
-    filters.add(
-        HazardousFilter(
-            operator.eq,
-            True if hazardous == 'hazardous' else False)
-    )
+    if hazardous is not None:
+        filters.add(
+            HazardousFilter(
+                operator.eq,
+                hazardous)
+        )
 
     return filters
 

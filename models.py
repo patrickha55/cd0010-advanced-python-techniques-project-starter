@@ -68,6 +68,19 @@ class NearEarthObject:
         return f"NearEarthObject(designation={self.designation!r}, name={self.name!r}, " \
             f"diameter={self.diameter:.3f}, hazardous={self.hazardous!r})"
 
+    def serialize(self) -> dict[str, str | float | bool]:
+        """Product a dictionary containing relevant attributes for CSV aor JSON serialization.
+
+        Returns:
+            dict[str, str]: Dictionary with key as field name and value.
+        """
+        return {
+            'designation': self.designation,
+            'name': '' if self.name is None else self.name,
+            'diameter_km': self.diameter,
+            'potentially_hazardous': self.hazardous
+        }
+
 
 class CloseApproach:
     """A close approach to Earth by an NEO.
@@ -122,9 +135,23 @@ class CloseApproach:
         Returns:
             str: Approach information.
         """
-        return f"On {self.time_str}, '{self.neo.fullname if self._designation is None else self._designation}' approaches Earth at a distance of {self.distance:.2f} au and a velocity of {self.velocity:.2f} km/s."
+        return f"On {self.time_str}, '{self.neo.fullname if self._designation is None else self._designation}' approaches Earth at a distance of {self.distance:.2f} au and a velocity of {self.velocity:.2f} km/s.\n Debug: hazardous: {self.neo.hazardous}, diameter: {self.neo.diameter}.\n"
 
     def __repr__(self):
         """Return `repr(self)`, a computer-readable string representation of this object."""
         return f"CloseApproach(time={self.time_str!r}, distance={self.distance:.2f}, " \
             f"velocity={self.velocity:.2f}, neo={self.neo!r})"
+
+    def serialize(self) -> dict[str, str | float]:
+        """Product a dictionary containing relevant attributes for CSV aor JSON serialization.
+
+        Returns:
+            dict[str, str]: Dictionary with key as field name and value.
+        """
+        result = {
+            'datetime_utc': datetime_to_str(self.time),
+            'distance_au': self.distance,
+            'velocity_km_s': self.velocity
+        }
+
+        return result

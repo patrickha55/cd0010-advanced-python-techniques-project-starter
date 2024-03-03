@@ -13,9 +13,7 @@ A `NearEarthObject` maintains a collection of its close approaches, and a
 
 The functions that construct these objects use information extracted from the
 data files from NASA, so these objects should be able to handle all of the
-quirks of the data set, such as missing names and unknown diameters.
-
-You'll edit this file in Task 1.
+quirks of the data set, such as missing names and unknown diameters.g
 """
 from helpers import cd_to_datetime, datetime_to_str
 
@@ -104,13 +102,12 @@ class CloseApproach:
             distance (str): The nominal approach distance in astronomical units (AU).
             velocity (str): The relative approach velocity in km/s.
             neo (NearEarthObject, optional): A near-Earth object. Defaults to None.
+            designation (str, optional): A NEO's designation.
         """
         self._designation = None if designation == '' else designation
         self.time = cd_to_datetime(time)
         self.distance = float(distance)
         self.velocity = float(velocity)
-
-        # Create an attribute for the referenced NEO, originally None.
 
         self.neo = neo
 
@@ -118,16 +115,10 @@ class CloseApproach:
     def time_str(self) -> str:
         """Return a formatted representation of this `CloseApproach`'s approach time.
 
-        The value in `self.time` should be a Python `datetime` object. While a
-        `datetime` object has a string representation, the default representation
-        includes seconds - significant figures that don't exist in our input
-        data set.
-
-        The `datetime_to_str` method converts a `datetime` object to a
-        formatted string that can be used in human-readable representations and
-        in serialization to CSV and JSON files.
+        Returns:
+            str: Close Approach's time.
         """
-        return str(datetime_to_str(self.time))
+        return datetime_to_str(self.time)
 
     def __str__(self) -> str:
         """Print a human-readable date and time of an NEO's approach with its distance and velocity.

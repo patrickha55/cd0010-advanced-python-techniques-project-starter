@@ -13,15 +13,12 @@ the supplied `CloseApproach`.
 
 The `limit` function simply limits the maximum number of values produced by an
 iterator.
-
-You'll edit this file in Tasks 3a and 3c.
 """
 import itertools
 import operator
-from typing import Generator
-import helpers
 import datetime
-from models import CloseApproach, NearEarthObject
+from typing import Generator
+from models import CloseApproach
 
 
 class UnsupportedCriterionError(NotImplementedError):

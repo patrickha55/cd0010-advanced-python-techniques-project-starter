@@ -46,7 +46,7 @@ class NEODatabase:
         self._neos = neos
         self._approaches = approaches
 
-        # Create a lookup table
+        # Create a lookup table using NEO's designation as key and the index of a NEO in a list as value.
         self._designation_to_index: dict[str, int] = {}
 
         for i, neo in enumerate(self._neos):
@@ -60,7 +60,7 @@ class NEODatabase:
                     # Append the approach above to the neo's approaches' list.
                     approach.neo.approaches.append(approach)
 
-        # More dicts to help speed up the inspect and query time.
+        # Auxiliary data structures to help speed up the inspect and query time.
         self._designation_to_neo = {
             neo.designation.lower(): neo for neo in self._neos
         }

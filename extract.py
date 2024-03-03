@@ -9,13 +9,9 @@ formatted as described in the project instructions, into a collection of
 
 The main module calls these functions with the arguments provided at the command
 line, and uses the resulting collections to build an `NEODatabase`.
-
-You'll edit this file in Task 2.
 """
 import csv
 import json
-from helpers import to_abs_path
-
 from models import NearEarthObject, CloseApproach
 
 
@@ -30,9 +26,10 @@ def load_neos(neo_csv_path: str) -> list:
         neos: list = []
 
         for row in reader:
-            neo = NearEarthObject(row['pdes'], row['name'], row['diameter'], True if row['pha'] == 'Y' else False)
+            neo = NearEarthObject(
+                row['pdes'], row['name'], row['diameter'], True if row['pha'] == 'Y' else False)
             neos.append(neo)
-            
+
     return neos
 
 
@@ -45,10 +42,10 @@ def load_approaches(cad_json_path: str) -> list:
     with open(cad_json_path, 'r') as f:
         rows = json.load(f)
         cas: list = []
-        
+
         for record in rows['data']:
-           ca = CloseApproach(time = record[3], distance=record[4], velocity=record[7], designation=record[0])
-           cas.append(ca) 
-        
-        
+            ca = CloseApproach(
+                time=record[3], distance=record[4], velocity=record[7], designation=record[0])
+            cas.append(ca)
+
     return cas

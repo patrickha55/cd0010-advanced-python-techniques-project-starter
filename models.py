@@ -13,9 +13,7 @@ A `NearEarthObject` maintains a collection of its close approaches, and a
 
 The functions that construct these objects use information extracted from the
 data files from NASA, so these objects should be able to handle all of the
-quirks of the data set, such as missing names and unknown diameters.
-
-You'll edit this file in Task 1.
+quirks of the data set, such as missing names and unknown diameters.g
 """
 from helpers import cd_to_datetime, datetime_to_str
 
@@ -68,6 +66,19 @@ class NearEarthObject:
         return f"NearEarthObject(designation={self.designation!r}, name={self.name!r}, " \
             f"diameter={self.diameter:.3f}, hazardous={self.hazardous!r})"
 
+    def serialize(self) -> dict[str, str | float | bool]:
+        """Product a dictionary containing relevant attributes for CSV aor JSON serialization.
+
+        Returns:
+            dict[str, str]: Dictionary with key as field name and value.
+        """
+        return {
+            'designation': self.designation,
+            'name': '' if self.name is None else self.name,
+            'diameter_km': self.diameter,
+            'potentially_hazardous': self.hazardous
+        }
+
 
 class CloseApproach:
     """A close approach to Earth by an NEO.
@@ -83,7 +94,7 @@ class CloseApproach:
     `NEODatabase` constructor.
     """
 
-    def __init__(self, time, distance: str, velocity: str, neo: NearEarthObject = None, designation: str = None) -> None:
+    def __init__(self, time: str, distance: str, velocity: str, neo: NearEarthObject = None, designation: str = None) -> None:
         """Create a new `CloseApproach`.
 
         Args:
@@ -91,13 +102,12 @@ class CloseApproach:
             distance (str): The nominal approach distance in astronomical units (AU).
             velocity (str): The relative approach velocity in km/s.
             neo (NearEarthObject, optional): A near-Earth object. Defaults to None.
+            designation (str, optional): A NEO's designation.
         """
         self._designation = None if designation == '' else designation
         self.time = cd_to_datetime(time)
         self.distance = float(distance)
         self.velocity = float(velocity)
-
-        # Create an attribute for the referenced NEO, originally None.
 
         self.neo = neo
 
@@ -105,16 +115,10 @@ class CloseApproach:
     def time_str(self) -> str:
         """Return a formatted representation of this `CloseApproach`'s approach time.
 
-        The value in `self.time` should be a Python `datetime` object. While a
-        `datetime` object has a string representation, the default representation
-        includes seconds - significant figures that don't exist in our input
-        data set.
-
-        The `datetime_to_str` method converts a `datetime` object to a
-        formatted string that can be used in human-readable representations and
-        in serialization to CSV and JSON files.
+        Returns:
+            str: Close Approach's time.
         """
-        return str(datetime_to_str(self.time))
+        return datetime_to_str(self.time)
 
     def __str__(self) -> str:
         """Print a human-readable date and time of an NEO's approach with its distance and velocity.
@@ -122,9 +126,23 @@ class CloseApproach:
         Returns:
             str: Approach information.
         """
-        return f"On {self.time_str}, '{self.neo.fullname if self._designation is None else self._designation}' approaches Earth at a distance of {self.distance:.2f} au and a velocity of {self.velocity:.2f} km/s."
+        return f"On {self.time_str}, '{self.neo.fullname if self._designation is None else self._designation}' approaches Earth at a distance of {self.distance:.2f} au and a velocity of {self.velocity:.2f} km/s.\n Debug: hazardous: {self.neo.hazardous}, diameter: {self.neo.diameter}.\n"
 
     def __repr__(self):
         """Return `repr(self)`, a computer-readable string representation of this object."""
         return f"CloseApproach(time={self.time_str!r}, distance={self.distance:.2f}, " \
             f"velocity={self.velocity:.2f}, neo={self.neo!r})"
+
+    def serialize(self) -> dict[str, str | float]:
+        """Product a dictionary containing relevant attributes for CSV aor JSON serialization.
+
+        Returns:
+            dict[str, str]: Dictionary with key as field name and value.
+        """
+        result = {
+            'datetime_utc': datetime_to_str(self.time),
+            'distance_au': self.distance,
+            'velocity_km_s': self.velocity
+        }
+
+        return result

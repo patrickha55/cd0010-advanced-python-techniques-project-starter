@@ -13,10 +13,12 @@ the supplied `CloseApproach`.
 
 The `limit` function simply limits the maximum number of values produced by an
 iterator.
-
-You'll edit this file in Tasks 3a and 3c.
 """
+import itertools
 import operator
+import datetime
+from typing import Generator
+from models import CloseApproach
 
 
 class UnsupportedCriterionError(NotImplementedError):
@@ -38,6 +40,7 @@ class AttributeFilter:
     Concrete subclasses can override the `get` classmethod to provide custom
     behavior to fetch a desired attribute from the given `CloseApproach`.
     """
+
     def __init__(self, op, value):
         """Construct a new `AttributeFilter` from an binary predicate and a reference value.
 
@@ -72,6 +75,106 @@ class AttributeFilter:
         return f"{self.__class__.__name__}(op=operator.{self.op.__name__}, value={self.value})"
 
 
+class ApproachDateFilter(AttributeFilter):
+    """For filtering an approach's time.
+
+    Args:
+        AttributeFilter (_type_): A general superclass for filters on comparable attributes.
+    """
+
+    @classmethod
+    def get(cls, approach: CloseApproach) -> datetime:
+        """Get the time attribute of an approach.
+
+        Args:
+            approach (CloseApproach): A close approach to Earth by an NEO.
+
+        Returns:
+            datetime: Time of the approach.
+        """
+        return approach.time.date()
+
+
+class ApproachDistanceFilter(AttributeFilter):
+    """For filtering an approach's distance.
+
+    Args:
+        AttributeFilter (_type_): A general superclass for filters on comparable attributes.
+    """
+
+    @classmethod
+    def get(cls, approach: CloseApproach) -> float:
+        """Get the distance attribute of an approach.
+
+        Args:
+            approach (CloseApproach): A close approach to Earth by an NEO.
+
+        Returns:
+            float: Distance of the approach.
+        """
+        return approach.distance
+
+
+class NEODiameterFilter(AttributeFilter):
+    """For filtering a NEO's diameter.
+
+    Args:
+        AttributeFilter (_type_): A general superclass for filters on comparable attributes.
+    """
+
+    @classmethod
+    def get(cls, approach: CloseApproach) -> float:
+        """Get the diameter attribute of a NEO.
+
+        Args:
+            approach (CloseApproach): A close approach to Earth by an NEO.
+
+        Returns:
+            float: Diameter of a NEO.
+        """
+        return approach.neo.diameter
+
+
+class ApproachVelocityFilter(AttributeFilter):
+    """For filtering an approach's velocity.
+
+    Args:
+        AttributeFilter (_type_): A general superclass for filters on comparable attributes.
+    """
+
+    @classmethod
+    def get(cls, approach: CloseApproach) -> float:
+        """Get the velocity attribute of an approach.
+
+        Args:
+            approach (CloseApproach): A close approach to Earth by an NEO.
+
+        Returns:
+            float: Velocity of an approach.
+        """
+        return approach.velocity
+
+
+class HazardousFilter(AttributeFilter):
+    """For filtering if a NEO's hazardous.
+
+    Args:
+        AttributeFilter (_type_): A general superclass for filters on comparable attributes.
+    """
+
+    @classmethod
+    def get(cls, approach: CloseApproach) -> bool:
+        """Get the hazardous attribute of an neo.
+
+        Args:
+            approach (CloseApproach): A close approach to Earth by an NEO.
+
+        Returns:
+            bool: Is a NEO hazardous.
+        """
+        return approach.neo.hazardous
+
+
 def create_filters(
         date=None, start_date=None, end_date=None,
         distance_min=None, distance_max=None,
@@ -82,7 +185,7 @@ def create_filters(
     """Create a collection of filters from user-specified criteria.
 
     Each of these arguments is provided by the main module with a value from the
-    user's options at the command line. Each one corresponds to a different type
+    user's options at the command,line. Each one corresponds to a different type
     of filter. For example, the `--date` option corresponds to the `date`
     argument, and represents a filter that selects close approaches that occurred
     on exactly that given date. Similarly, the `--min-distance` option
@@ -108,11 +211,65 @@ def create_filters(
     :param hazardous: Whether the NEO of a matching `CloseApproach` is potentially hazardous.
     :return: A collection of filters for use with `query`.
     """
-    # TODO: Decide how you will represent your filters.
-    return ()
+    filters = set()
+
+    if date:
+        filters.add(
+            ApproachDateFilter(operator.eq, date)
+        )
+
+    if start_date:
+        filters.add(
+            ApproachDateFilter(
+                operator.ge, start_date)
+        )
+
+    if end_date:
+        filters.add(
+            ApproachDateFilter(operator.le, end_date)
+        )
+
+    if distance_min:
+        filters.add(
+            ApproachDistanceFilter(operator.ge, float(distance_min))
+        )
+
+    if distance_max:
+        filters.add(
+            ApproachDistanceFilter(operator.le, float(distance_max))
+        )
+
+    if velocity_min:
+        filters.add(
+            ApproachVelocityFilter(operator.ge, float(velocity_min))
+        )
+
+    if velocity_max:
+        filters.add(
+            ApproachVelocityFilter(operator.le, float(velocity_max))
+        )
+
+    if diameter_min:
+        filters.add(
+            NEODiameterFilter(operator.ge, float(diameter_min))
+        )
+
+    if diameter_max:
+        filters.add(
+            NEODiameterFilter(operator.le, float(diameter_max))
+        )
+
+    if hazardous is not None:
+        filters.add(
+            HazardousFilter(
+                operator.eq,
+                hazardous)
+        )
+
+    return filters
 
 
-def limit(iterator, n=None):
+def limit(iterator: Generator, n=None):
     """Produce a limited stream of values from an iterator.
 
     If `n` is 0 or None, don't limit the iterator at all.
@@ -121,5 +278,7 @@ def limit(iterator, n=None):
     :param n: The maximum number of values to produce.
     :yield: The first (at most) `n` values from the iterator.
     """
-    # TODO: Produce at most `n` values from the given iterator.
-    return iterator
+    if n is None or n == 0:
+        return iterator
+
+    return itertools.islice(iterator, n)
